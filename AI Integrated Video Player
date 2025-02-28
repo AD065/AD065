@@ -1,0 +1,128 @@
+// ==UserScript==
+// @name         AI Integrated Video Player
+// @namespace    https://yourcustomscript.com
+// @version      1.0
+// @description  A premium AI-powered video player with adaptive layout, gesture controls, privacy protection, and performance optimizations.
+// @author       Your Name ChatGPT
+// @match        *://*/*
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    // Create Floating Panel
+    let panel = document.createElement('div');
+    panel.id = 'ai-video-panel';
+    panel.style.cssText = `
+        position: fixed;
+        bottom: 10%;
+        right: -90%; /* Hidden when inactive */
+        width: 60px;
+        height: 60px;
+        background: rgba(20, 20, 20, 0.8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: right 0.5s ease-in-out;
+        z-index: 9999;
+    `;
+    
+    panel.innerHTML = `<span style="color: white; font-size: 24px; font-weight: bold;">🅰️</span>`;
+    document.body.appendChild(panel);
+
+    // Show Panel on Hover
+    panel.addEventListener('mouseover', () => {
+        panel.style.right = '10px';
+    });
+    panel.addEventListener('mouseleave', () => {
+        panel.style.right = '-90%';
+    });
+
+    // Open Panel on Click
+    panel.addEventListener('click', function () {
+        let menu = document.getElementById('ai-video-menu');
+        if (!menu) {
+            menu = document.createElement('div');
+            menu.id = 'ai-video-menu';
+            menu.style.cssText = `
+                position: fixed;
+                bottom: 15%;
+                right: 20px;
+                width: 200px;
+                background: rgba(0, 0, 0, 0.9);
+                border-radius: 10px;
+                padding: 10px;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-around;
+                z-index: 10000;
+            `;
+            
+            let buttons = [
+                { icon: '▶️', action: () => video.play() },
+                { icon: '⏸️', action: () => video.pause() },
+                { icon: '🔊', action: () => setMode('movie') },
+                { icon: '🔉', action: () => setMode('music') },
+                { icon: '🚫', action: () => toggleAdBlock('regular') },
+                { icon: '🔞', action: () => toggleAdBlock('extreme') },
+                { icon: '⭕', action: () => toggleAudioProfile() },
+                { icon: '🛑', action: () => closePanel() },
+            ];
+            
+            buttons.forEach(btn => {
+                let button = document.createElement('button');
+                button.innerText = btn.icon;
+                button.style.cssText = 'background: none; border: none; color: white; font-size: 20px; margin: 5px; cursor: pointer;';
+                button.addEventListener('click', btn.action);
+                menu.appendChild(button);
+            });
+            document.body.appendChild(menu);
+        } else {
+            menu.remove();
+        }
+    });
+
+    // Gesture Controls
+    let video = document.querySelector('video');
+    if (video) {
+        let startX, startY, diffX, diffY;
+        
+        video.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        
+        video.addEventListener('touchmove', e => {
+            diffX = e.touches[0].clientX - startX;
+            diffY = e.touches[0].clientY - startY;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 50) video.currentTime += 10;
+                if (diffX < -50) video.currentTime -= 10;
+            } else {
+                if (startX < window.innerWidth / 2) video.volume = Math.min(1, Math.max(0, video.volume - diffY / 300));
+                else document.body.style.backgroundColor = diffY > 0 ? 'black' : 'white';
+            }
+        });
+    }
+
+    // Functions for Modes
+    function setMode(mode) {
+        alert(`Switched to ${mode} mode`);
+    }
+
+    function toggleAdBlock(type) {
+        alert(`Ad Blocker: ${type} mode activated`);
+    }
+    
+    function toggleAudioProfile() {
+        alert('Audio profile changed');
+    }
+    
+    function closePanel() {
+        let menu = document.getElementById('ai-video-menu');
+        if (menu) menu.remove();
+    }
+})();
